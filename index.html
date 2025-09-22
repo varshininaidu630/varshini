@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Personal Finance Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f6f8;
+      color: #333;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .form-section {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+
+    .summary div {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      width: 30%;
+    }
+
+    canvas {
+      margin-top: 30px;
+      max-width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .summary {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .summary div {
+        width: 100%;
+      }
+
+      .form-section {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Personal Finance Dashboard</h1>
+
+    <div class="form-section">
+      <input type="text" id="description" placeholder="Description" />
+      <input type="number" id="amount" placeholder="Amount" />
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <button onclick="addEntry()">Add</button>
+    </div>
+
+    <div class="summary">
+      <div>
+        <h3>Total Income</h3>
+        <p id="incomeTotal">$0</p>
+      </div>
+      <div>
+        <h3>Total Expenses</h3>
+        <p id="expenseTotal">$0</p>
+      </div>
+      <div>
+        <h3>Balance</h3>
+        <p id="balanceTotal">$0</p>
+      </div>
+    </div>
+
+    <canvas id="financeChart" height="100"></canvas>
+  </div>
+
+  <script>
+    let income = 0;
+    let expenses = 0;
+
+    const incomeTotalEl = document.getElementById('incomeTotal');
+    const expenseTotalEl = document.getElementById('expenseTotal');
+    const balanceTotalEl = document.getElementById('balanceTotal');
+
+    const ctx = document.getElementById('financeChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Income', 'Expenses'],
+        datasets: [{
+          label: 'Finance Breakdown',
+          data: [income, expenses],
+          backgroundColor: ['#28a745', '#dc3545'],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+
+    function updateSummary() {
+      incomeTotalEl.textContent = `$${income.toFixed(2)}`;
+      expenseTotalEl.textContent = `$${expenses.toFixed(2)}`;
+      balanceTotalEl.textContent = `$${(income - expenses).toFixed(2)}`;
+
+      chart.data.datasets[0].data = [income, expenses];
+      chart.update();
+    }
+
+    function addEntry() {
+      const desc = document.getElementById('description').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const type = document.getElementById('type').value;
+
+      if (!desc || isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid description and amount.');
+        return;
+      }
+
+      if (type === 'income') {
+        income += amount;
+      } else {
+        expenses += amount;
+      }
+
+      updateSummary();
+
+      // Clear inputs
+      document.getElementById('description').value = '';
+      document.getElementById('amount').value = '';
+    }
+
+    updateSummary(); // Initial
+  </script>
+</body>
+</html>
